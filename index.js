@@ -63,6 +63,8 @@ function handleRequest(req, res) {
 			})
 			.catch(catchError);
 	// }
+
+	res.end();
 }
 
 server.listen(8081);
