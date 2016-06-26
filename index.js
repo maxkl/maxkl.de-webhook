@@ -44,7 +44,7 @@ function verifyPayload(payload, signature) {
 }
 
 function catchError(err) {
-	console.error(err);
+	console.error(err.stack || err);
 }
 
 function handleRequest(req, res) {
