@@ -28,7 +28,7 @@ function readBody(req) {
 	});
 }
 
-function verifyPayload(payload, signature) {
+function verifySignature(payload, signature) {
 	const calculatedSignature = 'sha1=' + crypto.createHmac('sha1', config.secret).update(payload).digest('hex');
 	return scmp(calculatedSignature, signature);
 }
@@ -42,16 +42,14 @@ function handleRequest(req, res) {
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
 
-	if(eventName !== 'push') {
-		return res.end();
-	}
+	if(eventName !== 'push') return res.end();
 
 	readBody(req)
 		.then(body => {
-			const valid = verifyPayload(body, signature);
-			const payload = JSON.parse('>' + body);
-			console.log(payload);
-			console.log('^ ' + (valid ? 'valid' : 'invalid'));
+			if(!verifySignature(body, signature)) throw new Error('Signature does not match');
+			const payload = JSON.parse(body);
+			const repo = payload['repository'];
+			console.log(repo.name);
 		})
 		.catch(catchError);
 
