@@ -51,6 +51,7 @@ function handleRequest(req, res) {
 	const headers = req.headers;
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
+	console.log(headers);
 
 	console.log('Event:', eventName);
 	// if(eventName === 'push') {
