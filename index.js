@@ -55,14 +55,14 @@ function handleRequest(req, res) {
 
 	console.log('Event:', eventName);
 	// if(eventName === 'push') {
-		readBody(req)
-			.then(parseJson)
-			.then(payload => {
-				const valid = verifyPayload(payload, signature);
-				console.log(payload);
-				console.log('^ ' + (valid ? 'valid' : 'invalid'));
-			})
-			.catch(catchError);
+	readBody(req)
+		.then(body => {
+			const valid = verifyPayload(body, signature);
+			const payload = JSON.parse(body);
+			console.log(payload);
+			console.log('^ ' + (valid ? 'valid' : 'invalid'));
+		})
+		.catch(catchError);
 	// }
 
 	res.end();
