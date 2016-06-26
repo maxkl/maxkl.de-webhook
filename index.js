@@ -39,7 +39,7 @@ function parseJson(str) {
 }
 
 function verifyPayload(payload, signature) {
-	const calculatedSignature = new crypto.Hmac('sha1', config.secret).update(payload).toString('hex');
+	const calculatedSignature = 'sha1=' + new crypto.Hmac('sha1', config.secret).update(payload).toString('hex');
 	return scmp(calculatedSignature, signature);
 }
 
