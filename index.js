@@ -57,7 +57,9 @@ function handleRequest(req, res) {
 		readBody(req)
 			.then(parseJson)
 			.then(payload => {
+				const valid = verifyPayload(payload, signature);
 				console.log(payload);
+				console.log('^ ' + (valid ? 'valid' : 'invalid'));
 			})
 			.catch(catchError);
 	// }
