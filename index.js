@@ -28,19 +28,8 @@ function readBody(req) {
 	});
 }
 
-function parseJson(str) {
-	return new Promise((resolve, reject) => {
-		try {
-			resolve(JSON.parse(str));
-		} catch(err) {
-			reject(err);
-		}
-	});
-}
-
 function verifyPayload(payload, signature) {
-	const calculatedSignature = 'sha1=' + new crypto.Hmac('sha1', config.secret).update(payload).digest('hex');
-	console.log(calculatedSignature, signature);
+	const calculatedSignature = 'sha1=' + crypto.createHmac('sha1', config.secret).update(payload).digest('hex');
 	return scmp(calculatedSignature, signature);
 }
 
@@ -52,19 +41,19 @@ function handleRequest(req, res) {
 	const headers = req.headers;
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
-	console.log(headers);
 
-	console.log('Event:', eventName);
-	// if(eventName === 'push') {
+	if(eventName !== 'push') {
+		return res.end();
+	}
+
 	readBody(req)
 		.then(body => {
 			const valid = verifyPayload(body, signature);
-			const payload = JSON.parse(body);
+			const payload = JSON.parse('>' + body);
 			console.log(payload);
 			console.log('^ ' + (valid ? 'valid' : 'invalid'));
 		})
 		.catch(catchError);
-	// }
 
 	res.end();
 }
