@@ -1,5 +1,19 @@
 {
-  "dependencies": {
-    "scmp": "^1.0.0"
-  }
+  "name": "maxkl.de-webhook",
+  "version": "1.0.0",
+  "description": "webhook for maxkl.de homepage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxkl/maxkl.de-webhook.git"
+  },
+  "author": "Max Klein",
+  "license": "GIVE LICENSE INFO HERE",
+  "bugs": {
+    "url": "https://github.com/maxkl/maxkl.de-webhook/issues"
+  },
+  "homepage": "https://github.com/maxkl/maxkl.de-webhook#readme"
 }
