@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 const errors = require('./errors');
 
-const config = require('./config.json');
+const config = require('./config');
 
 function verifySignature(payload, signature, secret) {
 	const equalsIndex = signature.indexOf('=');
