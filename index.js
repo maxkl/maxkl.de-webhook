@@ -60,17 +60,19 @@ async function handleRequest(req, res) {
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
 
-	if(eventName !== 'push') {
-		throw new HttpError(400, 'Invalid event');
-	}
-
 	const body = await readBody(req);
 	if(!verifySignature(body, signature)) {
 		throw new HttpError(400, 'Signature does not match');
 	}
+
 	const payload = JSON.parse(body);
-	const repo = payload['repository'];
-	console.log(repo.name);
+	if(eventName === 'push') {
+		console.log('Push to %s', payload.repository.name);
+	} else if(eventName === 'ping') {
+		console.log('Ping from %s', payload.repository.name);
+	} else {
+		throw new HttpError(400, 'Invalid event');
+	}
 }
 
 const server = http.createServer(function (req, res) {
