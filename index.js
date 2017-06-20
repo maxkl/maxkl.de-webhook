@@ -6,6 +6,8 @@
 const http = require('http');
 const crypto = require('crypto');
 
+const errors = require('./errors');
+
 const config = require('./config.json');
 
 function verifySignature(payload, signature, secret) {
@@ -36,17 +38,21 @@ function readBody(req) {
 }
 
 async function handleRequest(req, res) {
+	if(req.method !== 'POST') {
+		throw new errors.NotFoundError();
+	}
+
 	const headers = req.headers;
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
 
 	if(eventName !== 'push') {
-		throw new Error('Invalid event');
+		throw new errors.BadRequestError('Invalid event');
 	}
 
 	const body = await readBody(req);
 	if(!verifySignature(body, signature)) {
-		throw new Error('Signature does not match');
+		throw new errors.BadRequestError('Signature does not match');
 	}
 	const payload = JSON.parse(body);
 	const repo = payload['repository'];
