@@ -61,7 +61,7 @@ async function handleRequest(req, res) {
 	const signature = headers['x-hub-signature'];
 
 	const body = await readBody(req);
-	if(!verifySignature(body, signature)) {
+	if(!verifySignature(body, signature, config.secret)) {
 		throw new HttpError(400, 'Signature does not match');
 	}
 
