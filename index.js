@@ -9,7 +9,7 @@ const createHandler = require('github-webhook-handler');
 const config = require('./config');
 
 const handler = createHandler({
-	path: '/',
+	path: config.path,
 	secret: config.secret
 });
 
