@@ -6,8 +6,6 @@
 const http = require('http');
 const crypto = require('crypto');
 
-const errors = require('./errors');
-
 const config = require('./config');
 
 function verifySignature(payload, signature, secret) {
@@ -37,9 +35,25 @@ function readBody(req) {
 	});
 }
 
+class HttpError extends Error {
+	constructor(statusCode, message) {
+		super(http.STATUS_CODES[statusCode] + message ? ': ' + message : '');
+		Object.defineProperties(this, {
+			name: {
+				value: this.constructor.name,
+				enumerable: false
+			},
+			httpStatus: {
+				value: statusCode,
+				enumerable: false
+			}
+		});
+	}
+}
+
 async function handleRequest(req, res) {
 	if(req.method !== 'POST') {
-		throw new errors.NotFoundError();
+		throw new HttpError(404);
 	}
 
 	const headers = req.headers;
@@ -47,12 +61,12 @@ async function handleRequest(req, res) {
 	const signature = headers['x-hub-signature'];
 
 	if(eventName !== 'push') {
-		throw new errors.BadRequestError('Invalid event');
+		throw new HttpError(400, 'Invalid event');
 	}
 
 	const body = await readBody(req);
 	if(!verifySignature(body, signature)) {
-		throw new errors.BadRequestError('Signature does not match');
+		throw new HttpError(400, 'Signature does not match');
 	}
 	const payload = JSON.parse(body);
 	const repo = payload['repository'];
