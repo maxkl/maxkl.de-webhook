@@ -15,10 +15,8 @@ function verifySignature(payload, signature, secret) {
 	}
 	const algorithm = signature.slice(0, equalsIndex);
 	const receivedDigest = Buffer.from(signature.slice(equalsIndex + 1));
-	const hmac = crypto.createHmac(algorithm, secret)
-	hmac.update(payload);
-	const calculatedDigest = hmac.digest();
-	return crypto.timingSafeEquals(calculatedDigest, digest);
+	const calculatedDigest = crypto.createHmac(algorithm, secret).update(payload).digest();
+	return crypto.timingSafeEquals(calculatedDigest, receivedDigest);
 }
 
 function readBody(req) {
