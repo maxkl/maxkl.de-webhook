@@ -72,7 +72,7 @@ const server = http.createServer(function (req, res) {
 		}, function (err) {
 			console.error(err);
 
-			res.statusCode = err.status || 500;
+			res.statusCode = err.httpStatus || 500;
 			res.end();
 		});
 }).listen(config.port);
