@@ -6,54 +6,67 @@
 const http = require('http');
 const crypto = require('crypto');
 
-const scmp = require('scmp');
-
 const config = require('./config.json');
 
-const server = http.createServer(handleRequest);
+function verifySignature(payload, signature, secret) {
+	const equalsIndex = signature.indexOf('=');
+	if(equalsIndex === -1) {
+		return false;
+	}
+	const algorithm = signature.slice(0, equalsIndex);
+	const receivedDigest = Buffer.from(signature.slice(equalsIndex + 1));
+	const calculatedDigest = crypto.createHmac(algorithm, secret).update(payload).digest();
+	return crypto.timingSafeEquals(calculatedDigest, digest);
+}
 
 function readBody(req) {
-	return new Promise((resolve, reject) => {
+	return new Promise(function (resolve, reject) {
 		const chunks = [];
-		req.on('data', chunk => {
+		req.on('data', function (chunk) {
 			chunks.push(chunk);
 		});
-		req.on('end', () => {
+		req.on('end', function () {
 			const body = Buffer.concat(chunks).toString();
 			resolve(body);
 		});
-		req.on('error', err => {
-			console.error(err);
+		req.on('error', function (err) {
+			reject(err);
 		});
 	});
 }
 
-function verifySignature(payload, signature) {
-	const calculatedSignature = 'sha1=' + crypto.createHmac('sha1', config.secret).update(payload).digest('hex');
-	return scmp(calculatedSignature, signature);
-}
-
-function catchError(err) {
-	console.error(err.stack || err);
-}
-
-function handleRequest(req, res) {
+async function handleRequest(req, res) {
 	const headers = req.headers;
 	const eventName = headers['x-github-event'];
 	const signature = headers['x-hub-signature'];
 
-	if(eventName !== 'push') return res.end();
+	if(eventName !== 'push') {
+		throw new Error('Invalid event');
+	}
 
-	readBody(req)
-		.then(body => {
-			if(!verifySignature(body, signature)) throw new Error('Signature does not match');
-			const payload = JSON.parse(body);
-			const repo = payload['repository'];
-			console.log(repo.name);
-		})
-		.catch(catchError);
-
-	res.end();
+	const body = await readBody(req);
+	if(!verifySignature(body, signature)) {
+		throw new Error('Signature does not match');
+	}
+	const payload = JSON.parse(body);
+	const repo = payload['repository'];
+	console.log(repo.name);
 }
 
-server.listen(8081);
+const server = http.createServer(function (req, res) {
+	let ret;
+	try {
+		ret = handleRequest(req, res);
+	} catch(err) {
+		ret = Promise.reject(err);
+	}
+	Promise.resolve(ret)
+		.then(function () {
+			res.end();
+		}, function (err) {
+			console.error(err);
+
+			res.statusCode = err.status || 500;
+			res.end();
+		});
+}).listen(config.port);
