@@ -45,13 +45,13 @@ async function updateRepo(repoDir, remote, branch) {
 	console.log(`Working directory: ${repoDir}`);
 
 	console.log(`git fetch ${remote}`);
-	console.log(await exec(`git fetch ${remote}`, { cwd: repoDir }).stdout);
+	console.log((await exec(`git fetch ${remote}`, { cwd: repoDir })).stdout);
 
 	console.log(`git reset --hard ${remote}/${branch}`);
-	console.log(await exec(`git reset --hard ${remote}/${branch}`, { cwd: repoDir }).stdout);
+	console.log((await exec(`git reset --hard ${remote}/${branch}`, { cwd: repoDir })).stdout);
 
 	console.log(`git submodule update --init --recursive`);
-	console.log(await exec(`git submodule update --init --recursive`, { cwd: repoDir }).stdout);
+	console.log((await exec(`git submodule update --init --recursive`, { cwd: repoDir })).stdout);
 }
 
 handler.on('push', function (event) {
