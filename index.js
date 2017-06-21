@@ -4,6 +4,7 @@
  */
 
 const http = require('http');
+const child_process = require('child_process');
 const createHandler = require('github-webhook-handler');
 
 const config = require('./config');
