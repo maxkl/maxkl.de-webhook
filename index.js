@@ -19,7 +19,7 @@ const server = http.createServer(function (req, res) {
 		res.setHeader('Content-Type', 'text/plain');
 		res.end('Not found');
 	});
-}).listen(config.port);
+}).listen(config.webhook.port);
 
 handler.on('error', function (err) {
 	console.error(err);
