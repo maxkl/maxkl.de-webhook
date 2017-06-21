@@ -48,12 +48,16 @@ async function updateRepo(repoDir, remote, branch) {
 }
 
 handler.on('push', function (event) {
-	updateRepo(config.repo.directory, config.repo.remote, config.repo.branch)
+	const repoDir = config.repo.directory;
+	const remote = config.repo.remote;
+	const branch = config.repo.branch;
+	updateRepo(repoDir, remote, branch)
 		.then(function () {
-			console.log('Repo updated');
+			if(config.postUpdate) {
+				return exec(config.postUpdate, { cwd: repoDir });
+			}
 		})
 		.catch(function (err) {
-			// TODO: better error reporting
 			console.error(err);
 		});
 });
